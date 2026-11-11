@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Returning to Studio</title>
+<style>body{margin:0;font:16px/1.6 -apple-system,BlinkMacSystemFont,sans-serif;background:#f7f5f0;color:#1d1c1a}main{max-width:520px;margin:15vh auto;padding:0 20px}a{color:inherit}</style>
+</head>
+<body>
+<main>
+<p id="msg">Returning to Studio on your computer…</p>
+</main>
+<script>
+// Facebook sends you back here after you approve Studio (Facebook needs a fixed https address).
+// This page only forwards Facebook's one-time sign-in code to the Studio running on your own computer.
+// It stores nothing, loads nothing else and sends nothing anywhere else.
+(function () {
+  var STUDIO = "http://127.0.0.1:8765/api/publish/meta/callback";
+  var q = new URLSearchParams(location.search);
+  var ok = q.has("state") && (q.has("code") || q.has("error"));
+  var msg = document.getElementById("msg");
+  if (!ok) { msg.textContent = "Nothing to do here. Connect Facebook from Studio's Publishing page."; return; }
+  var keep = new URLSearchParams();
+  ["code", "state", "error", "error_reason", "error_description"].forEach(function (k) { if (q.has(k)) keep.set(k, q.get(k)); });
+  history.replaceState(null, "", location.pathname);          // don't leave the code in this page's history entry
+  location.replace(STUDIO + "?" + keep.toString());
+  setTimeout(function () {
+    msg.innerHTML = "If nothing happened, make sure Studio is running on this computer, then <a href=\"" +
+      STUDIO + "?" + keep.toString().replace(/"/g, "") + "\">continue to Studio</a>.";
+  }, 4000);
+})();
+</script>
+</body>
+</html>
